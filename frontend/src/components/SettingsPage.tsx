@@ -186,6 +186,14 @@ const BackgroundColorPicker: React.FC<Omit<ColorPickerProps, 'title' | 'descript
 export const SettingsPage: React.FC = () => {
   const { backgroundColor, setBackgroundColor, primaryColor, setPrimaryColor, setIsSettingsOpen } = useSettings();
 
+  // Helper function to convert hex to rgba - same as in App.tsx
+  const hexToRgba = (hex: string, opacity: number) => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result 
+      ? `rgba(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}, ${opacity})`
+      : `rgba(255, 255, 255, ${opacity})`;
+  };
+
   const handleReset = () => {
     setBackgroundColor('#ffffff');
     setPrimaryColor('#000000');
@@ -279,7 +287,7 @@ export const SettingsPage: React.FC = () => {
               className="p-6 rounded-xl border-2 border-gray-200 transition-all duration-300"
               style={{
                 background: backgroundColor !== '#ffffff' 
-                  ? `linear-gradient(135deg, ${backgroundColor}20, ${backgroundColor}10)` 
+                  ? `linear-gradient(135deg, ${hexToRgba(backgroundColor, 0.15)}, ${hexToRgba(backgroundColor, 0.05)})` 
                   : 'linear-gradient(135deg, rgba(248, 250, 252, 0.5), rgba(241, 245, 249, 0.2))'
               }}
             >
@@ -327,7 +335,11 @@ export const SettingsPage: React.FC = () => {
                 <div className="flex items-center gap-3 mb-3">
                   <div 
                     className="w-8 h-8 rounded-lg border-2 border-white shadow-sm"
-                    style={{ backgroundColor: backgroundColor }}
+                    style={{ 
+                      background: backgroundColor !== '#ffffff' 
+                        ? `linear-gradient(135deg, ${hexToRgba(backgroundColor, 0.15)}, ${hexToRgba(backgroundColor, 0.05)})` 
+                        : 'linear-gradient(135deg, rgba(248, 250, 252, 0.5), rgba(241, 245, 249, 0.2))'
+                    }}
                   ></div>
                   <div>
                     <h4 className="font-medium text-gray-800">Background Color</h4>
@@ -395,7 +407,7 @@ export const SettingsPage: React.FC = () => {
                   className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105"
                   style={{ 
                     color: primaryColor,
-                    backgroundColor: `${primaryColor}15`
+                    backgroundColor: hexToRgba(primaryColor, 0.15)
                   }}
                 >
                   Ghost Button

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { ArrowLeft, Palette, RotateCcw, Upload, X } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
+import { TodoApp } from './TodoApp';
 
 interface ColorPickerProps {
   color: string;
@@ -369,19 +370,28 @@ export const SettingsPage: React.FC = () => {
               Live Preview
             </CardTitle>
             <p className="text-sm text-gray-600 mt-2">
-              See how your colors look in a real todo app interface
+              Your actual todo app rendered live with your current settings
             </p>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Mini Todo App Preview */}
-            <div 
-              className="p-6 rounded-xl border-2 border-gray-200 transition-all duration-300 relative overflow-hidden"
-              style={{
-                backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat'
-              }}
+            {/* Real Todo App Preview */}
+            <div className="text-sm text-gray-600 mb-2 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+              Live Preview - Real Todo App
+            </div>
+            <div className="overflow-hidden rounded-xl border-2 border-gray-200">
+              <div 
+                className="transition-all duration-300 relative"
+                style={{
+                  backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat',
+                  transform: 'scale(0.75)',
+                  transformOrigin: 'top left',
+                  width: '133%',
+                  height: '500px'
+                }}
             >
               {/* Background overlay with color and opacity */}
               <div 
@@ -394,39 +404,10 @@ export const SettingsPage: React.FC = () => {
                       : 'linear-gradient(135deg, rgba(248, 250, 252, 0.5), rgba(241, 245, 249, 0.2))'
                 }}
               ></div>
-              <div className="bg-white rounded-lg shadow-sm p-4 space-y-4 relative z-10">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-gray-800">My Todo App</h3>
-                  <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-                    <span className="text-xs">⚙️</span>
-                  </div>
-                </div>
-                
-                {/* Sample Todo Items */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-3 p-2 rounded border">
-                    <div className="w-4 h-4 rounded border-2 border-gray-300"></div>
-                    <span className="text-sm text-gray-600">Complete project proposal</span>
-                  </div>
-                  <div className="flex items-center gap-3 p-2 rounded border">
-                    <div className="w-4 h-4 rounded border-2 border-gray-300 bg-green-100">
-                      <div className="w-full h-full flex items-center justify-center text-xs text-green-600">✓</div>
-                    </div>
-                    <span className="text-sm text-gray-400 line-through">Review code changes</span>
-                  </div>
-                </div>
-                
-                {/* Preview Buttons */}
-                <div className="flex gap-2 pt-2">
-                  <button 
-                    className="px-3 py-1.5 rounded text-sm font-medium text-white transition-all duration-200 hover:scale-105"
-                    style={{ backgroundColor: primaryColor }}
-                  >
-                    Add Task
-                  </button>
-                  <button className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50">
-                    Filter
-                  </button>
+              
+                {/* Real TodoApp Component */}
+                <div className="relative z-10 p-4">
+                  <TodoApp />
                 </div>
               </div>
             </div>

@@ -8,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Loader2, RefreshCw, List, LayoutGrid, Plus, X, Pencil, Trash2, ArrowRight, Settings } from "lucide-react";
 import { Input } from "./ui/input";
-import { Settings as SettingsModal } from "./Settings";
 import { useSettings } from "../contexts/SettingsContext";
 
 export const TodoApp: React.FC = () => {
@@ -278,7 +277,6 @@ export const TodoApp: React.FC = () => {
         )}
       </CardContent>
       </Card>
-      <SettingsModal />
     </>
   );
 };

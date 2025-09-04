@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { TodoApp } from './components/TodoApp';
+import { SettingsPage } from './components/SettingsPage';
 import { Moon, Sun } from 'lucide-react';
 import { Button } from './components/ui/button';
 import { SettingsProvider, useSettings } from './contexts/SettingsContext';
@@ -19,7 +20,7 @@ const queryClient = new QueryClient({
 
 const AppContent = () => {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  const { backgroundColor, primaryColor } = useSettings();
+  const { backgroundColor, primaryColor, isSettingsOpen } = useSettings();
 
   // Helper function to convert hex to rgba
   const hexToRgba = (hex: string, opacity: number) => {
@@ -39,6 +40,11 @@ const AppContent = () => {
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
+
+  // Show settings page if settings is open
+  if (isSettingsOpen) {
+    return <SettingsPage />;
+  }
 
   return (
     <div 

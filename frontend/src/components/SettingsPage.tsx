@@ -262,44 +262,192 @@ export const SettingsPage: React.FC = () => {
           </Card>
         </div>
 
-        {/* Current Colors Preview */}
+        {/* Enhanced Color Preview */}
         <Card className="mt-6">
           <CardHeader>
-            <CardTitle className="text-xl">Color Preview</CardTitle>
+            <CardTitle className="text-xl flex items-center gap-2">
+              <div className="w-6 h-6 rounded bg-gradient-to-br from-purple-500 to-pink-500"></div>
+              Live Preview
+            </CardTitle>
+            <p className="text-sm text-gray-600 mt-2">
+              See how your colors look in a real todo app interface
+            </p>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="text-sm font-medium mb-3">Current Background</h4>
-                <div 
-                  className="w-full h-20 rounded-lg border-2 border-gray-300 flex items-center justify-center"
-                  style={{ 
-                    background: backgroundColor !== '#ffffff' 
-                      ? `linear-gradient(135deg, ${backgroundColor}66, ${backgroundColor}33)` 
-                      : 'linear-gradient(135deg, #f8fafc, #f1f5f9)'
-                  }}
-                >
-                  <span className="text-sm font-medium text-gray-700">{backgroundColor}</span>
+          <CardContent className="space-y-6">
+            {/* Mini Todo App Preview */}
+            <div 
+              className="p-6 rounded-xl border-2 border-gray-200 transition-all duration-300"
+              style={{
+                background: backgroundColor !== '#ffffff' 
+                  ? `linear-gradient(135deg, ${backgroundColor}20, ${backgroundColor}10)` 
+                  : 'linear-gradient(135deg, rgba(248, 250, 252, 0.5), rgba(241, 245, 249, 0.2))'
+              }}
+            >
+              <div className="bg-white rounded-lg shadow-sm p-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold text-gray-800">My Todo App</h3>
+                  <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                    <span className="text-xs">⚙️</span>
+                  </div>
                 </div>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium mb-3">Current Primary Color</h4>
-                <div className="space-y-3">
-                  <div 
-                    className="w-full h-12 rounded-lg flex items-center justify-center text-white font-medium"
+                
+                {/* Sample Todo Items */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3 p-2 rounded border">
+                    <div className="w-4 h-4 rounded border-2 border-gray-300"></div>
+                    <span className="text-sm text-gray-600">Complete project proposal</span>
+                  </div>
+                  <div className="flex items-center gap-3 p-2 rounded border">
+                    <div className="w-4 h-4 rounded border-2 border-gray-300 bg-green-100">
+                      <div className="w-full h-full flex items-center justify-center text-xs text-green-600">✓</div>
+                    </div>
+                    <span className="text-sm text-gray-400 line-through">Review code changes</span>
+                  </div>
+                </div>
+                
+                {/* Preview Buttons */}
+                <div className="flex gap-2 pt-2">
+                  <button 
+                    className="px-3 py-1.5 rounded text-sm font-medium text-white transition-all duration-200 hover:scale-105"
                     style={{ backgroundColor: primaryColor }}
                   >
-                    Button Preview ({primaryColor})
+                    Add Task
+                  </button>
+                  <button className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50">
+                    Filter
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Color Information Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Background Info */}
+              <div className="p-4 rounded-lg border border-gray-200 bg-gray-50">
+                <div className="flex items-center gap-3 mb-3">
+                  <div 
+                    className="w-8 h-8 rounded-lg border-2 border-white shadow-sm"
+                    style={{ backgroundColor: backgroundColor }}
+                  ></div>
+                  <div>
+                    <h4 className="font-medium text-gray-800">Background Color</h4>
+                    <p className="text-xs text-gray-500">App background gradient</p>
                   </div>
-                  <Button 
-                    className="w-full"
-                    style={{ 
-                      backgroundColor: primaryColor,
-                      borderColor: primaryColor
-                    }}
-                  >
-                    Live Button Example
-                  </Button>
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">Hex Code:</span>
+                    <code className="bg-white px-2 py-1 rounded text-xs font-mono border">{backgroundColor}</code>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">Opacity:</span>
+                    <span className="text-gray-800">15% - 5%</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Primary Color Info */}
+              <div className="p-4 rounded-lg border border-gray-200 bg-gray-50">
+                <div className="flex items-center gap-3 mb-3">
+                  <div 
+                    className="w-8 h-8 rounded-lg border-2 border-white shadow-sm"
+                    style={{ backgroundColor: primaryColor }}
+                  ></div>
+                  <div>
+                    <h4 className="font-medium text-gray-800">Primary Color</h4>
+                    <p className="text-xs text-gray-500">Buttons & interactive elements</p>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">Hex Code:</span>
+                    <code className="bg-white px-2 py-1 rounded text-xs font-mono border">{primaryColor}</code>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">Usage:</span>
+                    <span className="text-gray-800">Buttons, Links, Icons</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Button Variations Preview */}
+            <div className="p-4 rounded-lg border border-gray-200 bg-white">
+              <h4 className="font-medium text-gray-800 mb-4">Button Variations</h4>
+              <div className="flex flex-wrap gap-3">
+                <button 
+                  className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all duration-200 hover:scale-105 shadow-sm"
+                  style={{ backgroundColor: primaryColor }}
+                >
+                  Primary Button
+                </button>
+                <button 
+                  className="px-4 py-2 rounded-lg text-sm font-medium border-2 transition-all duration-200 hover:scale-105"
+                  style={{ 
+                    borderColor: primaryColor, 
+                    color: primaryColor,
+                    backgroundColor: 'transparent'
+                  }}
+                >
+                  Outline Button
+                </button>
+                <button 
+                  className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105"
+                  style={{ 
+                    color: primaryColor,
+                    backgroundColor: `${primaryColor}15`
+                  }}
+                >
+                  Ghost Button
+                </button>
+                <button className="px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-200">
+                  Secondary
+                </button>
+              </div>
+            </div>
+
+            {/* Color Harmony & Tips */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Color Harmony */}
+              <div className="p-4 rounded-lg border border-gray-200 bg-gradient-to-br from-blue-50 to-indigo-50">
+                <h4 className="font-medium text-gray-800 mb-3 flex items-center gap-2">
+                  <span className="text-blue-500">🎨</span>
+                  Color Harmony
+                </h4>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 rounded-full" style={{ backgroundColor: backgroundColor }}></div>
+                    <div className="w-4 h-4 rounded-full" style={{ backgroundColor: primaryColor }}></div>
+                    <span className="text-sm text-gray-600">Current Combination</span>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    {backgroundColor === '#ffffff' && primaryColor === '#000000' 
+                      ? 'Classic black and white - timeless and professional'
+                      : backgroundColor.toLowerCase().includes('f') && primaryColor.toLowerCase().includes('3') 
+                      ? 'Soft background with bold primary - great contrast'
+                      : 'Custom color combination - make sure it feels balanced'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Accessibility Tips */}
+              <div className="p-4 rounded-lg border border-gray-200 bg-gradient-to-br from-green-50 to-emerald-50">
+                <h4 className="font-medium text-gray-800 mb-3 flex items-center gap-2">
+                  <span className="text-green-500">♿</span>
+                  Accessibility
+                </h4>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    <span className="text-xs text-gray-600">High contrast on buttons</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    <span className="text-xs text-gray-600">Subtle background gradients</span>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Colors are optimized for readability and visual comfort.
+                  </p>
                 </div>
               </div>
             </div>

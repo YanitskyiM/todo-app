@@ -1,9 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
-import { ArrowLeft, Palette, RotateCcw, Upload, X } from 'lucide-react';
+import { Switch } from './ui/switch';
+import { AnimatedContainer } from './ui/animated-container';
+import { ArrowLeft, Palette, RotateCcw, Upload, X, Layers, Paintbrush } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { TodoApp } from './TodoApp';
+import GradientPicker from './GradientPicker';
 
 interface ColorPickerProps {
   color: string;
@@ -190,8 +193,13 @@ export const SettingsPage: React.FC = () => {
     backgroundOpacity, setBackgroundOpacity,
     backgroundImage, setBackgroundImage,
     primaryColor, setPrimaryColor, 
-    setIsSettingsOpen 
+    setIsSettingsOpen,
+    gradientSettings, setGradientSettings,
+    useGradient, setUseGradient
   } = useSettings();
+
+  const [isBackgroundOpen, setIsBackgroundOpen] = useState(true);
+  const [isPrimaryOpen, setIsPrimaryOpen] = useState(true);
 
   // Helper function to convert hex to rgba - same as in App.tsx
   const hexToRgba = (hex: string, opacity: number) => {
@@ -201,11 +209,48 @@ export const SettingsPage: React.FC = () => {
       : `rgba(255, 255, 255, ${opacity})`;
   };
 
+  // Helper function to generate gradient CSS - same as in App.tsx
+  const generateGradientCSS = () => {
+    if (!useGradient || gradientSettings.type === 'solid') {
+      return backgroundColor !== '#ffffff' 
+        ? hexToRgba(backgroundColor, backgroundOpacity)
+        : backgroundImage 
+          ? 'rgba(255, 255, 255, 0.1)'
+          : 'rgba(248, 250, 252, 0.3)';
+    }
+
+    const { type, stops, angle, centerX, centerY } = gradientSettings;
+    const stopStrings = stops.map(stop => `${stop.color} ${stop.position}%`).join(', ');
+
+    switch (type) {
+      case 'linear':
+        return `linear-gradient(${angle}deg, ${stopStrings})`;
+      case 'radial':
+        return `radial-gradient(circle at ${centerX}% ${centerY}%, ${stopStrings})`;
+      case 'conic':
+        return `conic-gradient(from ${angle}deg at ${centerX}% ${centerY}%, ${stopStrings})`;
+      default:
+        return `linear-gradient(135deg, ${stopStrings})`;
+    }
+  };
+
   const handleReset = () => {
     setBackgroundColor('#ffffff');
     setBackgroundOpacity(0.3);
     setBackgroundImage(null);
     setPrimaryColor('#000000');
+    setUseGradient(false);
+    setGradientSettings({
+      type: 'linear',
+      direction: 'to bottom right',
+      stops: [
+        { color: '#667eea', position: 0 },
+        { color: '#764ba2', position: 100 }
+      ],
+      angle: 135,
+      centerX: 50,
+      centerY: 50
+    });
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -256,16 +301,17 @@ export const SettingsPage: React.FC = () => {
         </div>
 
         {/* Settings Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Background Color Section */}
-          <Card className="h-fit">
-            <CardHeader>
-              <CardTitle className="text-xl">Background Customization</CardTitle>
-              <p className="text-sm text-gray-600">
-                Customize your app's background with colors, opacity, and images
-              </p>
-            </CardHeader>
-            <CardContent className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          {/* Background Customization Section */}
+          <AnimatedContainer
+            title="Background"
+            description="Colors, gradients, opacity, and images"
+            icon={<Layers className="h-5 w-5" />}
+            defaultOpen={isBackgroundOpen}
+            variant="background"
+            onToggle={setIsBackgroundOpen}
+            className="h-fit"
+          >
               {/* Background Image Upload */}
               <div>
                 <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
@@ -309,14 +355,44 @@ export const SettingsPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Background Color Picker */}
+              {/* Gradient Toggle */}
               <div>
-                <h4 className="text-sm font-medium mb-3">Background Color</h4>
-                <BackgroundColorPicker
-                  color={backgroundColor}
-                  onChange={setBackgroundColor}
-                />
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-medium flex items-center gap-2">
+                    <Layers className="h-4 w-4" />
+                    Use Gradient Background
+                  </h4>
+                  <Switch
+                    checked={useGradient}
+                    onCheckedChange={setUseGradient}
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mb-3">
+                  Enable gradient backgrounds for more dynamic visual effects
+                </p>
               </div>
+
+              {/* Gradient Controls */}
+              {useGradient && (
+                <div>
+                  <h4 className="text-sm font-medium mb-3">Gradient Settings</h4>
+                  <GradientPicker
+                    gradientSettings={gradientSettings}
+                    onGradientChange={setGradientSettings}
+                  />
+                </div>
+              )}
+
+              {/* Background Color Picker - Only show when gradient is disabled */}
+              {!useGradient && (
+                <div>
+                  <h4 className="text-sm font-medium mb-3">Background Color</h4>
+                  <BackgroundColorPicker
+                    color={backgroundColor}
+                    onChange={setBackgroundColor}
+                  />
+                </div>
+              )}
 
               {/* Opacity Slider */}
               <div>
@@ -342,24 +418,23 @@ export const SettingsPage: React.FC = () => {
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+          </AnimatedContainer>
 
           {/* Primary Color Section */}
-          <Card className="h-fit">
-            <CardHeader>
-              <CardTitle className="text-xl">Primary Color</CardTitle>
-              <p className="text-sm text-gray-600">
-                Choose the primary color for buttons and interactive elements
-              </p>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <PrimaryColorPicker
-                color={primaryColor}
-                onChange={setPrimaryColor}
-              />
-            </CardContent>
-          </Card>
+          <AnimatedContainer
+            title="Primary Color"
+            description="Buttons and interactive elements"
+            icon={<Paintbrush className="h-5 w-5" />}
+            defaultOpen={isPrimaryOpen}
+            variant="primary"
+            onToggle={setIsPrimaryOpen}
+            className="h-fit"
+          >
+            <PrimaryColorPicker
+              color={primaryColor}
+              onChange={setPrimaryColor}
+            />
+          </AnimatedContainer>
         </div>
 
         {/* Enhanced Color Preview */}
@@ -396,15 +471,11 @@ export const SettingsPage: React.FC = () => {
                 }}
               ></div>
               
-              {/* Background overlay with color and opacity */}
+              {/* Background overlay with gradient or color */}
               <div 
                 className="absolute inset-0"
                 style={{
-                  background: backgroundColor !== '#ffffff' 
-                    ? `linear-gradient(135deg, ${hexToRgba(backgroundColor, backgroundOpacity)}, ${hexToRgba(backgroundColor, backgroundOpacity * 0.3)})` 
-                    : backgroundImage 
-                      ? 'rgba(255, 255, 255, 0.1)'
-                      : 'linear-gradient(135deg, rgba(248, 250, 252, 0.5), rgba(241, 245, 249, 0.2))'
+                  background: generateGradientCSS()
                 }}
               ></div>
               
@@ -424,148 +495,6 @@ export const SettingsPage: React.FC = () => {
               
               {/* Overlay to prevent interactions */}
               <div className="absolute inset-0 bg-transparent cursor-not-allowed" title="Preview only - not interactive"></div>
-            </div>
-
-            {/* Color Information Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Background Info */}
-              <div className="p-4 rounded-lg border border-gray-200 bg-gray-50">
-                <div className="flex items-center gap-3 mb-3">
-                  <div 
-                    className="w-8 h-8 rounded-lg border-2 border-white shadow-sm"
-                    style={{ 
-                      background: backgroundColor !== '#ffffff' 
-                        ? `linear-gradient(135deg, ${hexToRgba(backgroundColor, 0.15)}, ${hexToRgba(backgroundColor, 0.05)})` 
-                        : 'linear-gradient(135deg, rgba(248, 250, 252, 0.5), rgba(241, 245, 249, 0.2))'
-                    }}
-                  ></div>
-                  <div>
-                    <h4 className="font-medium text-gray-800">Background Settings</h4>
-                    <p className="text-xs text-gray-500">{backgroundImage ? 'Image + color overlay' : 'Color gradient'}</p>
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Color:</span>
-                    <code className="bg-white px-2 py-1 rounded text-xs font-mono border">{backgroundColor}</code>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Opacity:</span>
-                    <span className="text-gray-800">{Math.round(backgroundOpacity * 100)}%</span>
-                  </div>
-                  {backgroundImage && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Image:</span>
-                      <span className="text-gray-800 text-xs">Uploaded ✓</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Primary Color Info */}
-              <div className="p-4 rounded-lg border border-gray-200 bg-gray-50">
-                <div className="flex items-center gap-3 mb-3">
-                  <div 
-                    className="w-8 h-8 rounded-lg border-2 border-white shadow-sm"
-                    style={{ backgroundColor: primaryColor }}
-                  ></div>
-                  <div>
-                    <h4 className="font-medium text-gray-800">Primary Color</h4>
-                    <p className="text-xs text-gray-500">Buttons & interactive elements</p>
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Hex Code:</span>
-                    <code className="bg-white px-2 py-1 rounded text-xs font-mono border">{primaryColor}</code>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Usage:</span>
-                    <span className="text-gray-800">Buttons, Links, Icons</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Button Variations Preview */}
-            <div className="p-4 rounded-lg border border-gray-200 bg-white">
-              <h4 className="font-medium text-gray-800 mb-4">Button Variations</h4>
-              <div className="flex flex-wrap gap-3">
-                <button 
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all duration-200 hover:scale-105 shadow-sm"
-                  style={{ backgroundColor: primaryColor }}
-                >
-                  Primary Button
-                </button>
-                <button 
-                  className="px-4 py-2 rounded-lg text-sm font-medium border-2 transition-all duration-200 hover:scale-105"
-                  style={{ 
-                    borderColor: primaryColor, 
-                    color: primaryColor,
-                    backgroundColor: 'transparent'
-                  }}
-                >
-                  Outline Button
-                </button>
-                <button 
-                  className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105"
-                  style={{ 
-                    color: primaryColor,
-                    backgroundColor: hexToRgba(primaryColor, 0.15)
-                  }}
-                >
-                  Ghost Button
-                </button>
-                <button className="px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-200">
-                  Secondary
-                </button>
-              </div>
-            </div>
-
-            {/* Color Harmony & Tips */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Color Harmony */}
-              <div className="p-4 rounded-lg border border-gray-200 bg-gradient-to-br from-blue-50 to-indigo-50">
-                <h4 className="font-medium text-gray-800 mb-3 flex items-center gap-2">
-                  <span className="text-blue-500">🎨</span>
-                  Color Harmony
-                </h4>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded-full" style={{ backgroundColor: backgroundColor }}></div>
-                    <div className="w-4 h-4 rounded-full" style={{ backgroundColor: primaryColor }}></div>
-                    <span className="text-sm text-gray-600">Current Combination</span>
-                  </div>
-                  <p className="text-xs text-gray-500">
-                    {backgroundColor === '#ffffff' && primaryColor === '#000000' 
-                      ? 'Classic black and white - timeless and professional'
-                      : backgroundColor.toLowerCase().includes('f') && primaryColor.toLowerCase().includes('3') 
-                      ? 'Soft background with bold primary - great contrast'
-                      : 'Custom color combination - make sure it feels balanced'}
-                  </p>
-                </div>
-              </div>
-
-              {/* Accessibility Tips */}
-              <div className="p-4 rounded-lg border border-gray-200 bg-gradient-to-br from-green-50 to-emerald-50">
-                <h4 className="font-medium text-gray-800 mb-3 flex items-center gap-2">
-                  <span className="text-green-500">♿</span>
-                  Accessibility
-                </h4>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                    <span className="text-xs text-gray-600">High contrast on buttons</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                    <span className="text-xs text-gray-600">Subtle background gradients</span>
-                  </div>
-                  <p className="text-xs text-gray-500">
-                    Colors are optimized for readability and visual comfort.
-                  </p>
-                </div>
-              </div>
             </div>
           </CardContent>
         </Card>

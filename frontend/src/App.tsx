@@ -20,7 +20,7 @@ const queryClient = new QueryClient({
 
 const AppContent = () => {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  const { backgroundColor, backgroundOpacity, backgroundImage, primaryColor, isSettingsOpen } = useSettings();
+  const { backgroundColor, backgroundOpacity, backgroundImage, primaryColor, isSettingsOpen, gradientSettings, useGradient } = useSettings();
 
   // Helper function to convert hex to rgba
   const hexToRgba = (hex: string, opacity: number) => {
@@ -28,6 +28,31 @@ const AppContent = () => {
     return result 
       ? `rgba(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}, ${opacity})`
       : `rgba(255, 255, 255, ${opacity})`;
+  };
+
+  // Helper function to generate gradient CSS
+  const generateGradientCSS = () => {
+    if (!useGradient || gradientSettings.type === 'solid') {
+      return backgroundColor !== '#ffffff' 
+        ? hexToRgba(backgroundColor, backgroundOpacity)
+        : backgroundImage 
+          ? 'rgba(255, 255, 255, 0.1)'
+          : 'rgba(248, 250, 252, 0.3)';
+    }
+
+    const { type, stops, angle, centerX, centerY } = gradientSettings;
+    const stopStrings = stops.map(stop => `${stop.color} ${stop.position}%`).join(', ');
+
+    switch (type) {
+      case 'linear':
+        return `linear-gradient(${angle}deg, ${stopStrings})`;
+      case 'radial':
+        return `radial-gradient(circle at ${centerX}% ${centerY}%, ${stopStrings})`;
+      case 'conic':
+        return `conic-gradient(from ${angle}deg at ${centerX}% ${centerY}%, ${stopStrings})`;
+      default:
+        return `linear-gradient(135deg, ${stopStrings})`;
+    }
   };
 
   useEffect(() => {
@@ -57,15 +82,11 @@ const AppContent = () => {
         backgroundAttachment: 'fixed'
       }}
     >
-      {/* Background overlay with color and opacity */}
+      {/* Background overlay with gradient or color */}
       <div 
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: backgroundColor !== '#ffffff' 
-            ? `linear-gradient(135deg, ${hexToRgba(backgroundColor, backgroundOpacity)}, ${hexToRgba(backgroundColor, backgroundOpacity * 0.3)})` 
-            : backgroundImage 
-              ? 'rgba(255, 255, 255, 0.1)'
-              : 'linear-gradient(135deg, rgba(248, 250, 252, 0.5), rgba(241, 245, 249, 0.2))'
+          background: generateGradientCSS()
         }}
       ></div>
       <div className="relative z-10">

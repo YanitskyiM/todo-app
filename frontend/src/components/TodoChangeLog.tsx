@@ -38,37 +38,53 @@ const formatDate = (dateString: string): string => {
 };
 
 // Helper function to get icon and color for change type
-const getChangeTypeStyles = (changeType: ChangeType): { icon: React.ReactNode; bgColor: string; textColor: string } => {
+const getChangeTypeStyles = (changeType: ChangeType): { 
+  icon: React.ReactNode; 
+  bgColor: string; 
+  textColor: string;
+  borderColor: string;
+  iconBg: string;
+} => {
   switch (changeType) {
     case ChangeType.CREATED:
       return {
         icon: <PlusCircleIcon className="h-4 w-4" />,
-        bgColor: 'bg-green-100',
-        textColor: 'text-green-800'
+        bgColor: 'bg-gradient-to-r from-emerald-50 to-green-50',
+        textColor: 'text-emerald-800',
+        borderColor: 'border-emerald-200',
+        iconBg: 'bg-emerald-500'
       };
     case ChangeType.TITLE_UPDATED:
       return {
         icon: <EditIcon className="h-4 w-4" />,
-        bgColor: 'bg-blue-100',
-        textColor: 'text-blue-800'
+        bgColor: 'bg-gradient-to-r from-blue-50 to-indigo-50',
+        textColor: 'text-blue-800',
+        borderColor: 'border-blue-200',
+        iconBg: 'bg-blue-500'
       };
     case ChangeType.STATUS_UPDATED:
       return {
         icon: <CheckCircleIcon className="h-4 w-4" />,
-        bgColor: 'bg-purple-100',
-        textColor: 'text-purple-800'
+        bgColor: 'bg-gradient-to-r from-purple-50 to-violet-50',
+        textColor: 'text-purple-800',
+        borderColor: 'border-purple-200',
+        iconBg: 'bg-purple-500'
       };
     case ChangeType.DELETED:
       return {
         icon: <TrashIcon className="h-4 w-4" />,
-        bgColor: 'bg-red-100',
-        textColor: 'text-red-800'
+        bgColor: 'bg-gradient-to-r from-red-50 to-rose-50',
+        textColor: 'text-red-800',
+        borderColor: 'border-red-200',
+        iconBg: 'bg-red-500'
       };
     default:
       return {
         icon: <EditIcon className="h-4 w-4" />,
-        bgColor: 'bg-gray-100',
-        textColor: 'text-gray-800'
+        bgColor: 'bg-gradient-to-r from-gray-50 to-slate-50',
+        textColor: 'text-gray-800',
+        borderColor: 'border-gray-200',
+        iconBg: 'bg-gray-500'
       };
   }
 };
@@ -85,96 +101,146 @@ export const TodoChangeLog: React.FC<TodoChangeLogProps> = ({ todoId }) => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-2">
-        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-        <span>Loading changes...</span>
+      <div className="mt-4">
+        <div className="flex items-center justify-center py-8">
+          <div className="flex items-center gap-3 bg-gray-50 px-4 py-3 rounded-lg">
+            <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
+            <span className="text-gray-600 font-medium">Loading change history...</span>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-destructive text-sm py-1">
-        Error loading changes: {(error as Error).message}
+      <div className="mt-4">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-red-500"></div>
+            <span className="text-red-800 font-medium">Error loading changes</span>
+          </div>
+          <p className="text-red-600 text-sm mt-1">{(error as Error).message}</p>
+        </div>
       </div>
     );
   }
 
   if (!changes || changes.length === 0) {
     return (
-      <div className="text-muted-foreground text-sm py-1">
-        No change history available
+      <div className="mt-4">
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+          <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-3">
+            <ClockIcon className="h-6 w-6 text-gray-400" />
+          </div>
+          <h4 className="text-gray-600 font-medium mb-1">No change history</h4>
+          <p className="text-gray-500 text-sm">This todo hasn't been modified yet</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="mt-3">
-      <h4 className="text-sm font-medium mb-2">Change History</h4>
-      <Accordion type="single" collapsible className="w-full">
-        {changes.map((change) => {
-          const { icon, bgColor, textColor } = getChangeTypeStyles(change.changeType);
+    <div className="mt-4">
+      <div className="flex items-center justify-between mb-4">
+        <h4 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500"></div>
+          Change History
+        </h4>
+        <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+          {changes.length} {changes.length === 1 ? 'change' : 'changes'}
+        </div>
+      </div>
+      
+      <div className="space-y-3">
+        {changes.map((change, index) => {
+          const { icon, bgColor, textColor, borderColor, iconBg } = getChangeTypeStyles(change.changeType);
           return (
-            <AccordionItem key={change.id} value={change.id} className="border rounded-md mb-2 overflow-hidden">
-              <AccordionTrigger className="py-3 px-4 hover:bg-slate-50 transition-colors">
-                <div className="flex items-center w-full justify-between">
-                  <div className="flex items-center">
-                    <div className={`${bgColor} ${textColor} p-1 rounded-md flex items-center mr-3`}>
-                      {icon}
+            <div 
+              key={change.id} 
+              className={`${bgColor} ${borderColor} border rounded-xl shadow-sm hover:shadow-md transition-all duration-200 group overflow-hidden`}
+            >
+              <div className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`${iconBg} p-2 rounded-lg shadow-sm`}>
+                      <div className="text-white">
+                        {icon}
+                      </div>
                     </div>
-                    <span className="font-medium">{formatChangeType(change.changeType)}</span>
+                    <div>
+                      <h5 className={`font-semibold ${textColor}`}>
+                        {formatChangeType(change.changeType)}
+                      </h5>
+                      <div className="flex items-center text-xs text-gray-500 mt-1">
+                        <ClockIcon className="h-3 w-3 mr-1" />
+                        {formatDate(change.createdAt)}
+                      </div>
+                    </div>
                   </div>
-                  <span className="text-xs text-muted-foreground flex items-center">
-                    <ClockIcon className="h-3 w-3 mr-1" />
-                    {formatDate(change.createdAt)}
-                  </span>
+                  <div className="text-xs text-gray-400 bg-white/50 px-2 py-1 rounded-full">
+                    #{changes.length - index}
+                  </div>
                 </div>
-              </AccordionTrigger>
-              <AccordionContent className="text-sm px-4 py-3 bg-slate-50">
-                {change.changeType === ChangeType.CREATED && (
-                  <div className="flex flex-col space-y-2">
-                    <div className="flex items-center">
-                      <span className="text-muted-foreground mr-2">Created todo with title:</span>
-                      <span className="font-medium px-2 py-1 bg-green-100 text-green-800 rounded">{change.newValue}</span>
+                
+                <div className="mt-3 pt-3 border-t border-white/50">
+                  {change.changeType === ChangeType.CREATED && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-600">Created todo with title:</span>
+                      <span className="font-medium px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-sm shadow-sm">
+                        {change.newValue}
+                      </span>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {change.changeType === ChangeType.TITLE_UPDATED && (
-                  <div className="flex flex-col space-y-2">
-                    <div className="flex items-center flex-wrap">
-                      <span className="text-muted-foreground mr-2">Title changed from</span>
-                      <span className="font-medium px-2 py-1 bg-red-100 text-red-800 rounded line-through mr-2">{change.previousValue}</span>
-                      <ArrowRightIcon className="h-4 w-4 text-muted-foreground mx-1" />
-                      <span className="font-medium px-2 py-1 bg-green-100 text-green-800 rounded">{change.newValue}</span>
+                  {change.changeType === ChangeType.TITLE_UPDATED && (
+                    <div className="flex items-center flex-wrap gap-2">
+                      <span className="text-sm text-gray-600">Title changed from</span>
+                      <span className="font-medium px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm line-through shadow-sm">
+                        {change.previousValue}
+                      </span>
+                      <ArrowRightIcon className="h-4 w-4 text-gray-400" />
+                      <span className="font-medium px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-sm shadow-sm">
+                        {change.newValue}
+                      </span>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {change.changeType === ChangeType.STATUS_UPDATED && (
-                  <div className="flex flex-col space-y-2">
-                    <div className="flex items-center flex-wrap">
-                      <span className="text-muted-foreground mr-2">Status changed from</span>
-                      <span className="font-medium px-2 py-1 bg-red-100 text-red-800 rounded mr-2">{change.previousValue}</span>
-                      <ArrowRightIcon className="h-4 w-4 text-muted-foreground mx-1" />
-                      <span className="font-medium px-2 py-1 bg-green-100 text-green-800 rounded">{change.newValue}</span>
+                  {change.changeType === ChangeType.STATUS_UPDATED && (
+                    <div className="flex items-center flex-wrap gap-2">
+                      <span className="text-sm text-gray-600">Status changed from</span>
+                      <span className={`font-medium px-3 py-1 rounded-full text-sm shadow-sm ${
+                        change.previousValue === 'completed' 
+                          ? 'bg-emerald-100 text-emerald-800' 
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {change.previousValue}
+                      </span>
+                      <ArrowRightIcon className="h-4 w-4 text-gray-400" />
+                      <span className={`font-medium px-3 py-1 rounded-full text-sm shadow-sm ${
+                        change.newValue === 'completed' 
+                          ? 'bg-emerald-100 text-emerald-800' 
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {change.newValue}
+                      </span>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {change.changeType === ChangeType.DELETED && (
-                  <div className="flex flex-col space-y-2">
-                    <div className="flex items-center">
-                      <span className="text-muted-foreground mr-2">Todo deleted:</span>
-                      <span className="font-medium px-2 py-1 bg-red-100 text-red-800 rounded line-through">{change.previousValue}</span>
+                  {change.changeType === ChangeType.DELETED && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-600">Todo deleted:</span>
+                      <span className="font-medium px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm line-through shadow-sm">
+                        {change.previousValue}
+                      </span>
                     </div>
-                  </div>
-                )}
-              </AccordionContent>
-            </AccordionItem>
+                  )}
+                </div>
+              </div>
+            </div>
           );
         })}
-      </Accordion>
+      </div>
     </div>
   );
 };

@@ -17,3 +17,5 @@ DB_DATABASE=database.sqlite
 
 # Environment
 NODE_ENV=development
+
+

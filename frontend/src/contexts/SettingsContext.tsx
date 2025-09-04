@@ -1,5 +1,19 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+export interface GradientStop {
+  color: string;
+  position: number;
+}
+
+export interface GradientSettings {
+  type: 'solid' | 'linear' | 'radial' | 'conic';
+  direction: string;
+  stops: GradientStop[];
+  angle: number;
+  centerX: number;
+  centerY: number;
+}
+
 interface SettingsContextType {
   backgroundColor: string;
   setBackgroundColor: (color: string) => void;
@@ -11,7 +25,24 @@ interface SettingsContextType {
   setPrimaryColor: (color: string) => void;
   isSettingsOpen: boolean;
   setIsSettingsOpen: (open: boolean) => void;
+  // New gradient settings
+  gradientSettings: GradientSettings;
+  setGradientSettings: (settings: GradientSettings) => void;
+  useGradient: boolean;
+  setUseGradient: (use: boolean) => void;
 }
+
+const defaultGradientSettings: GradientSettings = {
+  type: 'linear',
+  direction: 'to bottom right',
+  stops: [
+    { color: '#667eea', position: 0 },
+    { color: '#764ba2', position: 100 }
+  ],
+  angle: 135,
+  centerX: 50,
+  centerY: 50
+};
 
 const defaultSettings: SettingsContextType = {
   backgroundColor: '#ffffff',
@@ -24,6 +55,10 @@ const defaultSettings: SettingsContextType = {
   setPrimaryColor: () => {},
   isSettingsOpen: false,
   setIsSettingsOpen: () => {},
+  gradientSettings: defaultGradientSettings,
+  setGradientSettings: () => {},
+  useGradient: false,
+  setUseGradient: () => {},
 };
 
 const SettingsContext = createContext<SettingsContextType>(defaultSettings);
@@ -54,6 +89,8 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
   const [backgroundImage, setBackgroundImageState] = useState<string | null>(null);
   const [primaryColor, setPrimaryColorState] = useState<string>('#000000');
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const [gradientSettings, setGradientSettingsState] = useState<GradientSettings>(defaultGradientSettings);
+  const [useGradient, setUseGradientState] = useState<boolean>(false);
 
   // Load settings from localStorage on mount
   useEffect(() => {
@@ -65,10 +102,15 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
         const bgOpacity = settings.backgroundOpacity !== undefined ? settings.backgroundOpacity : 0.3;
         const bgImage = settings.backgroundImage || null;
         const primaryCol = settings.primaryColor || '#000000';
+        const gradientSettings = settings.gradientSettings || defaultGradientSettings;
+        const useGradient = settings.useGradient || false;
+        
         setBackgroundColorState(bgColor);
         setBackgroundOpacityState(bgOpacity);
         setBackgroundImageState(bgImage);
         setPrimaryColorState(primaryCol);
+        setGradientSettingsState(gradientSettings);
+        setUseGradientState(useGradient);
         
         // Apply primary color immediately on load
         const root = document.documentElement;
@@ -87,6 +129,8 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
       backgroundOpacity,
       backgroundImage,
       primaryColor,
+      gradientSettings,
+      useGradient,
     };
     localStorage.setItem('todoAppSettings', JSON.stringify(settings));
     
@@ -94,7 +138,7 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
     const root = document.documentElement;
     root.style.setProperty('--primary-color', primaryColor);
     root.style.setProperty('--primary-color-rgb', hexToRgb(primaryColor));
-  }, [backgroundColor, backgroundOpacity, backgroundImage, primaryColor]);
+  }, [backgroundColor, backgroundOpacity, backgroundImage, primaryColor, gradientSettings, useGradient]);
 
   const setBackgroundColor = (color: string) => {
     setBackgroundColorState(color);
@@ -112,6 +156,14 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
     setPrimaryColorState(color);
   };
 
+  const setGradientSettings = (settings: GradientSettings) => {
+    setGradientSettingsState(settings);
+  };
+
+  const setUseGradient = (use: boolean) => {
+    setUseGradientState(use);
+  };
+
   const value: SettingsContextType = {
     backgroundColor,
     setBackgroundColor,
@@ -123,6 +175,10 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
     setPrimaryColor,
     isSettingsOpen,
     setIsSettingsOpen,
+    gradientSettings,
+    setGradientSettings,
+    useGradient,
+    setUseGradient,
   };
 
   return (

@@ -6,13 +6,14 @@ import { TodoForm } from "./TodoForm";
 import { TodoList } from "./TodoList";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
-import { Loader2, RefreshCw, List, LayoutGrid, Plus, X, Pencil, Trash2, ArrowRight, Settings } from "lucide-react";
+import { Loader2, RefreshCw, List, LayoutGrid, Plus, X, Pencil, Trash2, ArrowRight, Settings, Eye } from "lucide-react";
 import { Input } from "./ui/input";
 import { useSettings } from "../contexts/SettingsContext";
 
 export const TodoApp: React.FC = () => {
   const { setIsSettingsOpen } = useSettings();
   const [editingTodo, setEditingTodo] = useState<TodoType | null>(null);
+  const [showDemo, setShowDemo] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "board">("list");
   const [columns, setColumns] = useState<{id: string, name: string}[]>([
     { id: "todo", name: "To Do" },
@@ -194,6 +195,27 @@ export const TodoApp: React.FC = () => {
     reorderTodosMutation.mutate(todoIds);
   };
 
+  // Show demo if requested
+  if (showDemo) {
+    const { AnimatedContainerDemo } = require('./AnimatedContainerDemo');
+    return (
+      <div className="min-h-screen">
+        <div className="fixed top-4 left-4 z-50">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setShowDemo(false)}
+            className="flex items-center gap-2"
+          >
+            <ArrowRight className="h-4 w-4" />
+            Back to Todo App
+          </Button>
+        </div>
+        <AnimatedContainerDemo />
+      </div>
+    );
+  }
+
   if (error) {
     return (
       <Card className="max-w-2xl mx-auto mt-8">
@@ -249,6 +271,15 @@ export const TodoApp: React.FC = () => {
               <LayoutGrid className="h-5 w-5" />
             </Button>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowDemo(true)}
+            className="flex items-center gap-2"
+          >
+            <Eye className="h-4 w-4" />
+            View Demo
+          </Button>
         </div>
 
         {isLoading ? (

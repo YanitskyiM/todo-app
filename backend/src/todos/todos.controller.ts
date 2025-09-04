@@ -31,6 +31,11 @@ export class TodosController {
     return await this.todosService.create(createTodoDto);
   }
 
+  @Post('reorder')
+  async reorderTodos(@Body() reorderDto: { todoIds: string[] }) {
+    return await this.todosService.reorderTodos(reorderDto.todoIds);
+  }
+
   @Get()
   async findAll() {
     return await this.todosService.findAll();

@@ -6,6 +6,7 @@ export interface Todo {
   updatedAt: string;
   attachments?: TodoAttachment[];
   columnId?: string; // Add columnId property to support custom column assignment
+  order?: number; // Add order property to support task reordering
 }
 
 export interface TodoAttachment {

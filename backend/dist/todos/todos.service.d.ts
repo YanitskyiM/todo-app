@@ -8,6 +8,8 @@ export interface CreateTodoDto {
 export interface UpdateTodoDto {
     title?: string;
     completed?: boolean;
+    columnId?: string;
+    order?: number;
 }
 export interface UploadedFile {
     fieldname: string;
@@ -37,4 +39,5 @@ export declare class TodosService {
     getAttachments(todoId: string): Promise<TodoAttachment[]>;
     getAttachment(id: string): Promise<TodoAttachment>;
     removeAttachment(id: string): Promise<void>;
+    reorderTodos(todoIds: string[]): Promise<Todo[]>;
 }

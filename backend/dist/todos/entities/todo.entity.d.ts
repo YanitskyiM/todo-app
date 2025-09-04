@@ -4,6 +4,7 @@ export declare class Todo {
     id: string;
     title: string;
     completed: boolean;
+    order: number;
     createdAt: Date;
     updatedAt: Date;
     changes: TodoChange[];

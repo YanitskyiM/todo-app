@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { Todo } from './entities/todo.entity';
 import { TodoChange, ChangeType } from './entities/todo-change.entity';
 import { TodoAttachment } from './entities/todo-attachment.entity';
@@ -19,6 +19,8 @@ export interface CreateTodoDto {
 export interface UpdateTodoDto {
   title?: string;
   completed?: boolean;
+  columnId?: string;
+  order?: number;
 }
 
 // Define a type for uploaded files to avoid TypeScript errors
@@ -61,8 +63,17 @@ export class TodosService {
   }
 
   async create(createTodoDto: CreateTodoDto): Promise<Todo> {
-    // Create the todo
-    const todo = this.todosRepository.create(createTodoDto);
+    // Get the current maximum order value to position new todo at the end
+    const maxOrder = await this.todosRepository
+      .createQueryBuilder('todo')
+      .select('MAX(todo.order)', 'maxOrder')
+      .getRawOne();
+    
+    // Create the todo with the next order position
+    const todo = this.todosRepository.create({
+      ...createTodoDto,
+      order: (maxOrder?.maxOrder || 0) + 1
+    });
     const savedTodo = await this.todosRepository.save(todo);
 
     // Record the creation in the changelog
@@ -77,7 +88,7 @@ export class TodosService {
 
   async findAll(): Promise<Todo[]> {
     return await this.todosRepository.find({
-      order: { createdAt: 'DESC' },
+      order: { order: 'ASC', createdAt: 'DESC' },
     });
   }
 
@@ -254,5 +265,28 @@ export class TodosService {
 
     // Remove the attachment record
     await this.todoAttachmentsRepository.remove(attachment);
+  }
+
+  async reorderTodos(todoIds: string[]): Promise<Todo[]> {
+    // Validate that all provided IDs exist
+    const todos = await this.todosRepository.find({
+      where: { id: In(todoIds) }
+    });
+    if (todos.length !== todoIds.length) {
+      throw new NotFoundException('Some todo IDs were not found');
+    }
+
+    // Update the order of each todo based on its position in the array
+    const updatedTodos: Todo[] = [];
+    for (let i = 0; i < todoIds.length; i++) {
+      const todo = todos.find(t => t.id === todoIds[i]);
+      if (todo) {
+        todo.order = i + 1;
+        const updatedTodo = await this.todosRepository.save(todo);
+        updatedTodos.push(updatedTodo);
+      }
+    }
+
+    return updatedTodos;
   }
 }

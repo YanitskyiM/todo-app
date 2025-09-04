@@ -79,7 +79,14 @@ let TodosService = class TodosService {
         }
     }
     async create(createTodoDto) {
-        const todo = this.todosRepository.create(createTodoDto);
+        const maxOrder = await this.todosRepository
+            .createQueryBuilder('todo')
+            .select('MAX(todo.order)', 'maxOrder')
+            .getRawOne();
+        const todo = this.todosRepository.create({
+            ...createTodoDto,
+            order: (maxOrder?.maxOrder || 0) + 1
+        });
         const savedTodo = await this.todosRepository.save(todo);
         await this.todoChangesRepository.save({
             todoId: savedTodo.id,
@@ -90,7 +97,7 @@ let TodosService = class TodosService {
     }
     async findAll() {
         return await this.todosRepository.find({
-            order: { createdAt: 'DESC' },
+            order: { order: 'ASC', createdAt: 'DESC' },
         });
     }
     async findOne(id) {
@@ -213,6 +220,24 @@ let TodosService = class TodosService {
             previousValue: attachment.originalFilename,
         });
         await this.todoAttachmentsRepository.remove(attachment);
+    }
+    async reorderTodos(todoIds) {
+        const todos = await this.todosRepository.find({
+            where: { id: (0, typeorm_2.In)(todoIds) }
+        });
+        if (todos.length !== todoIds.length) {
+            throw new common_1.NotFoundException('Some todo IDs were not found');
+        }
+        const updatedTodos = [];
+        for (let i = 0; i < todoIds.length; i++) {
+            const todo = todos.find(t => t.id === todoIds[i]);
+            if (todo) {
+                todo.order = i + 1;
+                const updatedTodo = await this.todosRepository.save(todo);
+                updatedTodos.push(updatedTodo);
+            }
+        }
+        return updatedTodos;
     }
 };
 exports.TodosService = TodosService;

@@ -17,6 +17,7 @@ let Todo = class Todo {
     id;
     title;
     completed;
+    order;
     createdAt;
     updatedAt;
     changes;
@@ -35,6 +36,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'boolean', default: false }),
     __metadata("design:type", Boolean)
 ], Todo.prototype, "completed", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'integer', nullable: true }),
+    __metadata("design:type", Number)
+], Todo.prototype, "order", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)

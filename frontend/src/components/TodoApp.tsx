@@ -129,6 +129,14 @@ export const TodoApp: React.FC = () => {
     },
   });
 
+  // Reorder todos mutation
+  const reorderTodosMutation = useMutation({
+    mutationFn: (todoIds: string[]) => todoApi.reorderTodos(todoIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+    },
+  });
+
   const handleSubmit = (title: string, file?: File) => {
     if (editingTodo) {
       updateTodoMutation.mutate({ id: editingTodo.id, updates: { title } });
@@ -152,6 +160,10 @@ export const TodoApp: React.FC = () => {
 
   const handleCancelEdit = () => {
     setEditingTodo(null);
+  };
+
+  const handleReorder = (todoIds: string[]) => {
+    reorderTodosMutation.mutate(todoIds);
   };
 
   if (error) {
@@ -209,6 +221,7 @@ export const TodoApp: React.FC = () => {
             onToggle={handleToggle}
             onDelete={handleDelete}
             onEdit={handleEdit}
+            onReorder={handleReorder}
             viewMode={viewMode}
             columns={columns}
             onMoveTodoToColumn={handleMoveTodoToColumn}

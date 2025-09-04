@@ -13,6 +13,9 @@ export class Todo {
   @Column({ type: 'boolean', default: false })
   completed: boolean;
 
+  @Column({ type: 'integer', nullable: true })
+  order: number;
+
   @CreateDateColumn()
   createdAt: Date;
 

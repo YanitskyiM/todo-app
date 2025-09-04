@@ -8,6 +8,9 @@ export declare class TodosController {
     private readonly uploadsDir;
     constructor(todosService: TodosService);
     create(createTodoDto: CreateTodoDto): Promise<import("./entities/todo.entity").Todo>;
+    reorderTodos(reorderDto: {
+        todoIds: string[];
+    }): Promise<import("./entities/todo.entity").Todo[]>;
     findAll(): Promise<import("./entities/todo.entity").Todo[]>;
     getAttachment(id: string, res: Response): Promise<StreamableFile>;
     removeAttachment(id: string): Promise<{

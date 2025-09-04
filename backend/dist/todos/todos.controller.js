@@ -62,6 +62,9 @@ let TodosController = TodosController_1 = class TodosController {
     async create(createTodoDto) {
         return await this.todosService.create(createTodoDto);
     }
+    async reorderTodos(reorderDto) {
+        return await this.todosService.reorderTodos(reorderDto.todoIds);
+    }
     async findAll() {
         return await this.todosService.findAll();
     }
@@ -131,6 +134,13 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], TodosController.prototype, "create", null);
+__decorate([
+    (0, common_1.Post)('reorder'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], TodosController.prototype, "reorderTodos", null);
 __decorate([
     (0, common_1.Get)(),
     __metadata("design:type", Function),

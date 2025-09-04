@@ -119,5 +119,20 @@ export const todoApi = {
   // Get the URL for an attachment
   getAttachmentUrl(attachmentId: string): string {
     return `${API_BASE_URL}/attachments/${attachmentId}`;
+  },
+
+  // Reorder todos
+  async reorderTodos(todoIds: string[]): Promise<Todo[]> {
+    const response = await fetch(`${API_BASE_URL}/todos/reorder`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ todoIds }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to reorder todos');
+    }
+    return response.json();
   }
 };

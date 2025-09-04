@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { ArrowLeft, Palette, RotateCcw } from 'lucide-react';
@@ -47,19 +47,24 @@ const PrimaryColorPicker: React.FC<Omit<ColorPickerProps, 'title' | 'description
       <div>
         <h4 className="text-sm font-medium mb-4">Preset Colors</h4>
         <div className="grid grid-cols-6 gap-3">
-          {primaryColors.map((primaryColor, index) => (
-            <button
-              key={index}
-              className={`w-12 h-12 rounded-lg border-2 transition-all duration-200 hover:scale-105 ${
-                color === primaryColor 
-                  ? 'border-blue-500 shadow-lg ring-2 ring-blue-200' 
-                  : 'border-gray-300 hover:border-gray-400 hover:shadow-md'
-              }`}
-              style={{ backgroundColor: primaryColor }}
-              onClick={() => onChange(primaryColor)}
-              title={primaryColor}
-            />
-          ))}
+          {primaryColors.map((primaryColor, index) => {
+            const isSelected = color === primaryColor;
+            return (
+              <span
+                key={index}
+                className={`inline-block w-12 h-12 rounded-lg cursor-pointer transition-transform duration-200 hover:scale-105 ${
+                  isSelected ? 'ring-2 ring-blue-500 ring-offset-2' : 'border-2 border-gray-300'
+                }`}
+                style={{
+                  backgroundColor: primaryColor,
+                  minWidth: '3rem',
+                  minHeight: '3rem',
+                }}
+                onClick={() => onChange(primaryColor)}
+                title={primaryColor}
+              />
+            );
+          })}
         </div>
       </div>
 
@@ -128,19 +133,24 @@ const BackgroundColorPicker: React.FC<Omit<ColorPickerProps, 'title' | 'descript
       <div>
         <h4 className="text-sm font-medium mb-4">Preset Colors</h4>
         <div className="grid grid-cols-6 gap-3">
-          {presetColors.map((presetColor, index) => (
-            <button
-              key={index}
-              className={`w-12 h-12 rounded-lg border-2 transition-all duration-200 hover:scale-105 ${
-                color === presetColor 
-                  ? 'border-blue-500 shadow-lg ring-2 ring-blue-200' 
-                  : 'border-gray-300 hover:border-gray-400 hover:shadow-md'
-              }`}
-              style={{ backgroundColor: presetColor }}
-              onClick={() => onChange(presetColor)}
-              title={presetColor}
-            />
-          ))}
+          {presetColors.map((presetColor, index) => {
+            const isSelected = color === presetColor;
+            return (
+              <span
+                key={index}
+                className={`inline-block w-12 h-12 rounded-lg cursor-pointer transition-transform duration-200 hover:scale-105 ${
+                  isSelected ? 'ring-2 ring-blue-500 ring-offset-2' : 'border-2 border-gray-300'
+                }`}
+                style={{
+                  backgroundColor: presetColor,
+                  minWidth: '3rem',
+                  minHeight: '3rem',
+                }}
+                onClick={() => onChange(presetColor)}
+                title={presetColor}
+              />
+            );
+          })}
         </div>
       </div>
 
@@ -265,7 +275,7 @@ export const SettingsPage: React.FC = () => {
                   className="w-full h-20 rounded-lg border-2 border-gray-300 flex items-center justify-center"
                   style={{ 
                     background: backgroundColor !== '#ffffff' 
-                      ? `linear-gradient(135deg, ${backgroundColor}40, ${backgroundColor}20)` 
+                      ? `linear-gradient(135deg, ${backgroundColor}66, ${backgroundColor}33)` 
                       : 'linear-gradient(135deg, #f8fafc, #f1f5f9)'
                   }}
                 >

@@ -384,44 +384,42 @@ export const SettingsPage: React.FC = () => {
                 Preview Only
               </span>
             </div>
-            <div className="overflow-hidden rounded-xl border-2 border-gray-200 relative">
+            <div className="overflow-hidden rounded-xl border-2 border-gray-200 relative" style={{ height: '400px' }}>
+              {/* Background layer - same as main app */}
               <div 
-                className="transition-all duration-300 relative pointer-events-none"
+                className="absolute inset-0"
+                style={{
+                  backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat'
+                }}
+              ></div>
+              
+              {/* Background overlay with color and opacity */}
+              <div 
+                className="absolute inset-0"
+                style={{
+                  background: backgroundColor !== '#ffffff' 
+                    ? `linear-gradient(135deg, ${hexToRgba(backgroundColor, backgroundOpacity)}, ${hexToRgba(backgroundColor, backgroundOpacity * 0.3)})` 
+                    : backgroundImage 
+                      ? 'rgba(255, 255, 255, 0.1)'
+                      : 'linear-gradient(135deg, rgba(248, 250, 252, 0.5), rgba(241, 245, 249, 0.2))'
+                }}
+              ></div>
+              
+              {/* Scaled TodoApp Component - Non-interactive */}
+              <div 
+                className="relative z-10 pointer-events-none"
                 style={{
                   transform: 'scale(0.75)',
                   transformOrigin: 'top left',
                   width: '133%',
-                  height: '500px'
+                  height: '133%',
+                  padding: '16px'
                 }}
               >
-                {/* Background layer - same as main app */}
-                <div 
-                  className="absolute inset-0"
-                  style={{
-                    backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none',
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
-                    backgroundAttachment: 'scroll'
-                  }}
-                ></div>
-                
-                {/* Background overlay with color and opacity */}
-                <div 
-                  className="absolute inset-0"
-                  style={{
-                    background: backgroundColor !== '#ffffff' 
-                      ? `linear-gradient(135deg, ${hexToRgba(backgroundColor, backgroundOpacity)}, ${hexToRgba(backgroundColor, backgroundOpacity * 0.3)})` 
-                      : backgroundImage 
-                        ? 'rgba(255, 255, 255, 0.1)'
-                        : 'linear-gradient(135deg, rgba(248, 250, 252, 0.5), rgba(241, 245, 249, 0.2))'
-                  }}
-                ></div>
-                
-                {/* Real TodoApp Component - Non-interactive */}
-                <div className="relative z-10 p-4">
-                  <TodoApp />
-                </div>
+                <TodoApp />
               </div>
               
               {/* Overlay to prevent interactions */}

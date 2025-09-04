@@ -20,7 +20,7 @@ const queryClient = new QueryClient({
 
 const AppContent = () => {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  const { backgroundColor, primaryColor, isSettingsOpen } = useSettings();
+  const { backgroundColor, backgroundOpacity, backgroundImage, primaryColor, isSettingsOpen } = useSettings();
 
   // Helper function to convert hex to rgba
   const hexToRgba = (hex: string, opacity: number) => {
@@ -48,19 +48,34 @@ const AppContent = () => {
 
   return (
     <div 
-      className="min-h-screen p-4 transition-all duration-300"
+      className="min-h-screen p-4 transition-all duration-300 relative"
       style={{
-        background: backgroundColor !== '#ffffff' 
-          ? `linear-gradient(135deg, ${hexToRgba(backgroundColor, 0.15)}, ${hexToRgba(backgroundColor, 0.05)})` 
-          : 'linear-gradient(135deg, rgba(248, 250, 252, 0.5), rgba(241, 245, 249, 0.2))'
+        backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed'
       }}
     >
-      <div className="fixed top-4 right-4 z-50">
-        <Button variant="outline" size="icon" onClick={toggleTheme}>
-          {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-        </Button>
+      {/* Background overlay with color and opacity */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: backgroundColor !== '#ffffff' 
+            ? `linear-gradient(135deg, ${hexToRgba(backgroundColor, backgroundOpacity)}, ${hexToRgba(backgroundColor, backgroundOpacity * 0.3)})` 
+            : backgroundImage 
+              ? 'rgba(255, 255, 255, 0.1)'
+              : 'linear-gradient(135deg, rgba(248, 250, 252, 0.5), rgba(241, 245, 249, 0.2))'
+        }}
+      ></div>
+      <div className="relative z-10">
+        <div className="fixed top-4 right-4 z-50">
+          <Button variant="outline" size="icon" onClick={toggleTheme}>
+            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </Button>
+        </div>
+        <TodoApp />
       </div>
-      <TodoApp />
     </div>
   );
 }

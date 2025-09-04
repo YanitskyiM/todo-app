@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
-import { ArrowLeft, Palette, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Palette, RotateCcw, Upload, X } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 
 interface ColorPickerProps {
@@ -184,7 +184,13 @@ const BackgroundColorPicker: React.FC<Omit<ColorPickerProps, 'title' | 'descript
 };
 
 export const SettingsPage: React.FC = () => {
-  const { backgroundColor, setBackgroundColor, primaryColor, setPrimaryColor, setIsSettingsOpen } = useSettings();
+  const { 
+    backgroundColor, setBackgroundColor, 
+    backgroundOpacity, setBackgroundOpacity,
+    backgroundImage, setBackgroundImage,
+    primaryColor, setPrimaryColor, 
+    setIsSettingsOpen 
+  } = useSettings();
 
   // Helper function to convert hex to rgba - same as in App.tsx
   const hexToRgba = (hex: string, opacity: number) => {
@@ -196,7 +202,20 @@ export const SettingsPage: React.FC = () => {
 
   const handleReset = () => {
     setBackgroundColor('#ffffff');
+    setBackgroundOpacity(0.15);
+    setBackgroundImage(null);
     setPrimaryColor('#000000');
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setBackgroundImage(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleBack = () => {
@@ -240,16 +259,88 @@ export const SettingsPage: React.FC = () => {
           {/* Background Color Section */}
           <Card className="h-fit">
             <CardHeader>
-              <CardTitle className="text-xl">Background Color</CardTitle>
+              <CardTitle className="text-xl">Background Customization</CardTitle>
               <p className="text-sm text-gray-600">
-                Choose a beautiful background color for your todo app
+                Customize your app's background with colors, opacity, and images
               </p>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <BackgroundColorPicker
-                color={backgroundColor}
-                onChange={setBackgroundColor}
-              />
+            <CardContent className="space-y-6">
+              {/* Background Image Upload */}
+              <div>
+                <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
+                  <Upload className="h-4 w-4" />
+                  Background Image
+                </h4>
+                <div className="space-y-3">
+                  {backgroundImage ? (
+                    <div className="relative">
+                      <img 
+                        src={backgroundImage} 
+                        alt="Background preview" 
+                        className="w-full h-24 object-cover rounded-lg border border-gray-300"
+                      />
+                      <button
+                        onClick={() => setBackgroundImage(null)}
+                        className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors">
+                      <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-600 mb-2">Upload background image</p>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                        id="background-image-upload"
+                      />
+                      <label
+                        htmlFor="background-image-upload"
+                        className="inline-block px-3 py-1 bg-blue-500 text-white text-xs rounded cursor-pointer hover:bg-blue-600 transition-colors"
+                      >
+                        Choose Image
+                      </label>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Background Color Picker */}
+              <div>
+                <h4 className="text-sm font-medium mb-3">Background Color</h4>
+                <BackgroundColorPicker
+                  color={backgroundColor}
+                  onChange={setBackgroundColor}
+                />
+              </div>
+
+              {/* Opacity Slider */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-medium">Background Opacity</h4>
+                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                    {Math.round(backgroundOpacity * 100)}%
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  <input
+                    type="range"
+                    min="0"
+                    max="0.5"
+                    step="0.01"
+                    value={backgroundOpacity}
+                    onChange={(e) => setBackgroundOpacity(parseFloat(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                  />
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>0% (Transparent)</span>
+                    <span>50% (Semi-solid)</span>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
@@ -284,14 +375,26 @@ export const SettingsPage: React.FC = () => {
           <CardContent className="space-y-6">
             {/* Mini Todo App Preview */}
             <div 
-              className="p-6 rounded-xl border-2 border-gray-200 transition-all duration-300"
+              className="p-6 rounded-xl border-2 border-gray-200 transition-all duration-300 relative overflow-hidden"
               style={{
-                background: backgroundColor !== '#ffffff' 
-                  ? `linear-gradient(135deg, ${hexToRgba(backgroundColor, 0.15)}, ${hexToRgba(backgroundColor, 0.05)})` 
-                  : 'linear-gradient(135deg, rgba(248, 250, 252, 0.5), rgba(241, 245, 249, 0.2))'
+                backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
               }}
             >
-              <div className="bg-white rounded-lg shadow-sm p-4 space-y-4">
+              {/* Background overlay with color and opacity */}
+              <div 
+                className="absolute inset-0 rounded-xl"
+                style={{
+                  background: backgroundColor !== '#ffffff' 
+                    ? `linear-gradient(135deg, ${hexToRgba(backgroundColor, backgroundOpacity)}, ${hexToRgba(backgroundColor, backgroundOpacity * 0.3)})` 
+                    : backgroundImage 
+                      ? 'rgba(255, 255, 255, 0.1)'
+                      : 'linear-gradient(135deg, rgba(248, 250, 252, 0.5), rgba(241, 245, 249, 0.2))'
+                }}
+              ></div>
+              <div className="bg-white rounded-lg shadow-sm p-4 space-y-4 relative z-10">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-gray-800">My Todo App</h3>
                   <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
@@ -342,19 +445,25 @@ export const SettingsPage: React.FC = () => {
                     }}
                   ></div>
                   <div>
-                    <h4 className="font-medium text-gray-800">Background Color</h4>
-                    <p className="text-xs text-gray-500">App background gradient</p>
+                    <h4 className="font-medium text-gray-800">Background Settings</h4>
+                    <p className="text-xs text-gray-500">{backgroundImage ? 'Image + color overlay' : 'Color gradient'}</p>
                   </div>
                 </div>
                 <div className="space-y-1">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Hex Code:</span>
+                    <span className="text-gray-600">Color:</span>
                     <code className="bg-white px-2 py-1 rounded text-xs font-mono border">{backgroundColor}</code>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">Opacity:</span>
-                    <span className="text-gray-800">15% - 5%</span>
+                    <span className="text-gray-800">{Math.round(backgroundOpacity * 100)}%</span>
                   </div>
+                  {backgroundImage && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600">Image:</span>
+                      <span className="text-gray-800 text-xs">Uploaded ✓</span>
+                    </div>
+                  )}
                 </div>
               </div>
 

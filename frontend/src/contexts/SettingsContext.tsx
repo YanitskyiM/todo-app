@@ -3,6 +3,10 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 interface SettingsContextType {
   backgroundColor: string;
   setBackgroundColor: (color: string) => void;
+  backgroundOpacity: number;
+  setBackgroundOpacity: (opacity: number) => void;
+  backgroundImage: string | null;
+  setBackgroundImage: (image: string | null) => void;
   primaryColor: string;
   setPrimaryColor: (color: string) => void;
   isSettingsOpen: boolean;
@@ -12,6 +16,10 @@ interface SettingsContextType {
 const defaultSettings: SettingsContextType = {
   backgroundColor: '#ffffff',
   setBackgroundColor: () => {},
+  backgroundOpacity: 0.15,
+  setBackgroundOpacity: () => {},
+  backgroundImage: null,
+  setBackgroundImage: () => {},
   primaryColor: '#000000',
   setPrimaryColor: () => {},
   isSettingsOpen: false,
@@ -42,6 +50,8 @@ const hexToRgb = (hex: string) => {
 
 export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) => {
   const [backgroundColor, setBackgroundColorState] = useState<string>('#ffffff');
+  const [backgroundOpacity, setBackgroundOpacityState] = useState<number>(0.15);
+  const [backgroundImage, setBackgroundImageState] = useState<string | null>(null);
   const [primaryColor, setPrimaryColorState] = useState<string>('#000000');
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
 
@@ -52,8 +62,12 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
       try {
         const settings = JSON.parse(storedSettings);
         const bgColor = settings.backgroundColor || '#ffffff';
+        const bgOpacity = settings.backgroundOpacity || 0.15;
+        const bgImage = settings.backgroundImage || null;
         const primaryCol = settings.primaryColor || '#000000';
         setBackgroundColorState(bgColor);
+        setBackgroundOpacityState(bgOpacity);
+        setBackgroundImageState(bgImage);
         setPrimaryColorState(primaryCol);
         
         // Apply primary color immediately on load
@@ -70,6 +84,8 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
   useEffect(() => {
     const settings = {
       backgroundColor,
+      backgroundOpacity,
+      backgroundImage,
       primaryColor,
     };
     localStorage.setItem('todoAppSettings', JSON.stringify(settings));
@@ -78,10 +94,18 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
     const root = document.documentElement;
     root.style.setProperty('--primary-color', primaryColor);
     root.style.setProperty('--primary-color-rgb', hexToRgb(primaryColor));
-  }, [backgroundColor, primaryColor]);
+  }, [backgroundColor, backgroundOpacity, backgroundImage, primaryColor]);
 
   const setBackgroundColor = (color: string) => {
     setBackgroundColorState(color);
+  };
+
+  const setBackgroundOpacity = (opacity: number) => {
+    setBackgroundOpacityState(opacity);
+  };
+
+  const setBackgroundImage = (image: string | null) => {
+    setBackgroundImageState(image);
   };
 
   const setPrimaryColor = (color: string) => {
@@ -91,6 +115,10 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
   const value: SettingsContextType = {
     backgroundColor,
     setBackgroundColor,
+    backgroundOpacity,
+    setBackgroundOpacity,
+    backgroundImage,
+    setBackgroundImage,
     primaryColor,
     setPrimaryColor,
     isSettingsOpen,

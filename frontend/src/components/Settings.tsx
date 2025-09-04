@@ -9,6 +9,87 @@ interface ColorPickerProps {
   onChange: (color: string) => void;
 }
 
+const PrimaryColorPicker: React.FC<ColorPickerProps> = ({ color, onChange }) => {
+  const [customColor, setCustomColor] = useState(color);
+
+  // Predefined primary colors suitable for buttons
+  const primaryColors = [
+    '#000000', // Black
+    '#1f2937', // Gray 800
+    '#374151', // Gray 700
+    '#6366f1', // Indigo 500
+    '#3b82f6', // Blue 500
+    '#06b6d4', // Cyan 500
+    '#10b981', // Emerald 500
+    '#84cc16', // Lime 500
+    '#eab308', // Yellow 500
+    '#f59e0b', // Amber 500
+    '#f97316', // Orange 500
+    '#ef4444', // Red 500
+    '#ec4899', // Pink 500
+    '#a855f7', // Purple 500
+    '#8b5cf6', // Violet 500
+    '#7c3aed', // Purple 600
+    '#dc2626', // Red 600
+    '#059669', // Emerald 600
+    '#0891b2', // Cyan 600
+    '#2563eb', // Blue 600
+    '#7c2d12', // Orange 900
+    '#991b1b', // Red 900
+    '#581c87', // Purple 900
+    '#1e40af', // Blue 800
+  ];
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <h4 className="text-sm font-medium mb-3">Preset Colors</h4>
+        <div className="grid grid-cols-6 gap-2">
+          {primaryColors.map((primaryColor, index) => (
+            <button
+              key={index}
+              className={`w-10 h-10 rounded-lg border-2 transition-all duration-200 hover:scale-110 ${
+                color === primaryColor 
+                  ? 'border-blue-500 shadow-lg' 
+                  : 'border-gray-300 hover:border-gray-400'
+              }`}
+              style={{ backgroundColor: primaryColor }}
+              onClick={() => onChange(primaryColor)}
+              title={primaryColor}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h4 className="text-sm font-medium mb-3">Custom Color</h4>
+        <div className="flex gap-3 items-center">
+          <input
+            type="color"
+            value={customColor}
+            onChange={(e) => setCustomColor(e.target.value)}
+            className="w-12 h-10 rounded-lg border border-gray-300 cursor-pointer"
+          />
+          <input
+            type="text"
+            value={customColor}
+            onChange={(e) => setCustomColor(e.target.value)}
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+            placeholder="#000000"
+          />
+          <Button
+            size="sm"
+            onClick={() => onChange(customColor)}
+            className="whitespace-nowrap"
+          >
+            Apply
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ColorPicker: React.FC<ColorPickerProps> = ({ color, onChange }) => {
   const [customColor, setCustomColor] = useState(color);
 
@@ -91,10 +172,11 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ color, onChange }) => {
 };
 
 export const Settings: React.FC = () => {
-  const { backgroundColor, setBackgroundColor, isSettingsOpen, setIsSettingsOpen } = useSettings();
+  const { backgroundColor, setBackgroundColor, primaryColor, setPrimaryColor, isSettingsOpen, setIsSettingsOpen } = useSettings();
 
   const handleReset = () => {
     setBackgroundColor('#ffffff');
+    setPrimaryColor('#000000');
   };
 
   const handleClose = () => {
@@ -131,12 +213,40 @@ export const Settings: React.FC = () => {
               onChange={setBackgroundColor}
             />
           </div>
+          
+          <div className="border-t pt-6">
+            <h3 className="text-lg font-semibold mb-2">Primary Color</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Choose the primary color for buttons and interactive elements
+            </p>
+            <PrimaryColorPicker
+              color={primaryColor}
+              onChange={setPrimaryColor}
+            />
+          </div>
 
           <div className="border-t pt-4">
             <div className="flex justify-between items-center">
-              <div>
-                <h4 className="text-sm font-medium">Current Color</h4>
-                <p className="text-xs text-gray-500">{backgroundColor}</p>
+              <div className="space-y-2">
+                <div>
+                  <h4 className="text-sm font-medium">Current Colors</h4>
+                  <div className="flex items-center gap-3 mt-1">
+                    <div className="flex items-center gap-2">
+                      <div 
+                        className="w-4 h-4 rounded border border-gray-300" 
+                        style={{ backgroundColor }}
+                      ></div>
+                      <span className="text-xs text-gray-500">BG: {backgroundColor}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div 
+                        className="w-4 h-4 rounded border border-gray-300" 
+                        style={{ backgroundColor: primaryColor }}
+                      ></div>
+                      <span className="text-xs text-gray-500">Primary: {primaryColor}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div className="flex gap-2">
                 <Button
@@ -146,7 +256,7 @@ export const Settings: React.FC = () => {
                   className="flex items-center gap-1"
                 >
                   <RotateCcw className="h-3 w-3" />
-                  Reset
+                  Reset All
                 </Button>
                 <Button
                   size="sm"

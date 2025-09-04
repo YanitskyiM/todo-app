@@ -19,7 +19,15 @@ const queryClient = new QueryClient({
 
 const AppContent = () => {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  const { backgroundColor } = useSettings();
+  const { backgroundColor, primaryColor } = useSettings();
+
+  // Helper function to convert hex to rgba
+  const hexToRgba = (hex: string, opacity: number) => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result 
+      ? `rgba(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}, ${opacity})`
+      : `rgba(255, 255, 255, ${opacity})`;
+  };
 
   useEffect(() => {
     // Apply the theme class to the document
@@ -37,8 +45,8 @@ const AppContent = () => {
       className="min-h-screen p-4 transition-all duration-300"
       style={{
         background: backgroundColor !== '#ffffff' 
-          ? `linear-gradient(135deg, ${backgroundColor}15, ${backgroundColor}05)` 
-          : undefined
+          ? `linear-gradient(135deg, ${hexToRgba(backgroundColor, 0.15)}, ${hexToRgba(backgroundColor, 0.05)})` 
+          : 'linear-gradient(135deg, rgba(248, 250, 252, 0.5), rgba(241, 245, 249, 0.2))'
       }}
     >
       <div className="fixed top-4 right-4 z-50">

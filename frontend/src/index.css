@@ -24,6 +24,10 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
     --radius: 0.5rem;
+    
+    /* Custom primary color variables */
+    --primary-color: #000000;
+    --primary-color-rgb: 0, 0, 0;
   }
 
   .dark {
@@ -83,5 +87,40 @@ code {
   .scrollbar-hide {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
+  }
+}
+
+/* Custom primary color overrides */
+@layer components {
+  /* Target default variant buttons (primary buttons) */
+  button:not([class*="outline"]):not([class*="ghost"]):not([class*="secondary"]):not([class*="link"]),
+  .bg-primary {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+    border-color: var(--primary-color) !important;
+  }
+  
+  button:not([class*="outline"]):not([class*="ghost"]):not([class*="secondary"]):not([class*="link"]):hover,
+  .bg-primary:hover {
+    background-color: rgba(var(--primary-color-rgb), 0.9) !important;
+    border-color: rgba(var(--primary-color-rgb), 0.9) !important;
+  }
+  
+  /* Specific targeting for Shadcn button variants */
+  .inline-flex.items-center.justify-center.rounded-md:not(.border-input):not(.bg-transparent):not(.bg-secondary) {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+    border-color: var(--primary-color) !important;
+  }
+  
+  .inline-flex.items-center.justify-center.rounded-md:not(.border-input):not(.bg-transparent):not(.bg-secondary):hover {
+    background-color: rgba(var(--primary-color-rgb), 0.9) !important;
+  }
+  
+  /* Also target buttons by their computed background */
+  button[style*="background-color: rgb(34, 34, 34)"],
+  button[style*="background-color: hsl(222.2, 47.4%, 11.2%)"] {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
   }
 }

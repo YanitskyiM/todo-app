@@ -3,6 +3,8 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 interface SettingsContextType {
   backgroundColor: string;
   setBackgroundColor: (color: string) => void;
+  primaryColor: string;
+  setPrimaryColor: (color: string) => void;
   isSettingsOpen: boolean;
   setIsSettingsOpen: (open: boolean) => void;
 }
@@ -10,6 +12,8 @@ interface SettingsContextType {
 const defaultSettings: SettingsContextType = {
   backgroundColor: '#ffffff',
   setBackgroundColor: () => {},
+  primaryColor: '#000000',
+  setPrimaryColor: () => {},
   isSettingsOpen: false,
   setIsSettingsOpen: () => {},
 };
@@ -28,8 +32,17 @@ interface SettingsProviderProps {
   children: ReactNode;
 }
 
+// Helper function to convert hex to rgb
+const hexToRgb = (hex: string) => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result 
+    ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
+    : '0, 0, 0';
+};
+
 export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) => {
   const [backgroundColor, setBackgroundColorState] = useState<string>('#ffffff');
+  const [primaryColor, setPrimaryColorState] = useState<string>('#000000');
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
 
   // Load settings from localStorage on mount
@@ -38,8 +51,15 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
     if (storedSettings) {
       try {
         const settings = JSON.parse(storedSettings);
-        const color = settings.backgroundColor || '#ffffff';
-        setBackgroundColorState(color);
+        const bgColor = settings.backgroundColor || '#ffffff';
+        const primaryCol = settings.primaryColor || '#000000';
+        setBackgroundColorState(bgColor);
+        setPrimaryColorState(primaryCol);
+        
+        // Apply primary color immediately on load
+        const root = document.documentElement;
+        root.style.setProperty('--primary-color', primaryCol);
+        root.style.setProperty('--primary-color-rgb', hexToRgb(primaryCol));
       } catch (error) {
         console.error('Failed to parse stored settings:', error);
       }
@@ -50,17 +70,29 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
   useEffect(() => {
     const settings = {
       backgroundColor,
+      primaryColor,
     };
     localStorage.setItem('todoAppSettings', JSON.stringify(settings));
-  }, [backgroundColor]);
+    
+    // Apply primary color to CSS custom properties
+    const root = document.documentElement;
+    root.style.setProperty('--primary-color', primaryColor);
+    root.style.setProperty('--primary-color-rgb', hexToRgb(primaryColor));
+  }, [backgroundColor, primaryColor]);
 
   const setBackgroundColor = (color: string) => {
     setBackgroundColorState(color);
   };
 
+  const setPrimaryColor = (color: string) => {
+    setPrimaryColorState(color);
+  };
+
   const value: SettingsContextType = {
     backgroundColor,
     setBackgroundColor,
+    primaryColor,
+    setPrimaryColor,
     isSettingsOpen,
     setIsSettingsOpen,
   };

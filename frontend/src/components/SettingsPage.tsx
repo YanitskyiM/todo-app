@@ -202,7 +202,7 @@ export const SettingsPage: React.FC = () => {
 
   const handleReset = () => {
     setBackgroundColor('#ffffff');
-    setBackgroundOpacity(0.15);
+    setBackgroundOpacity(0.3);
     setBackgroundImage(null);
     setPrimaryColor('#000000');
   };
@@ -329,7 +329,7 @@ export const SettingsPage: React.FC = () => {
                   <input
                     type="range"
                     min="0"
-                    max="0.5"
+                    max="1"
                     step="0.01"
                     value={backgroundOpacity}
                     onChange={(e) => setBackgroundOpacity(parseFloat(e.target.value))}
@@ -337,7 +337,7 @@ export const SettingsPage: React.FC = () => {
                   />
                   <div className="flex justify-between text-xs text-gray-500">
                     <span>0% (Transparent)</span>
-                    <span>50% (Semi-solid)</span>
+                    <span>100% (Solid)</span>
                   </div>
                 </div>
               </div>

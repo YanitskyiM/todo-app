@@ -6,10 +6,13 @@ import { TodoForm } from "./TodoForm";
 import { TodoList } from "./TodoList";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
-import { Loader2, RefreshCw, List, LayoutGrid, Plus, X, Pencil, Trash2, ArrowRight } from "lucide-react";
+import { Loader2, RefreshCw, List, LayoutGrid, Plus, X, Pencil, Trash2, ArrowRight, Settings } from "lucide-react";
 import { Input } from "./ui/input";
+import { Settings as SettingsModal } from "./Settings";
+import { useSettings } from "../contexts/SettingsContext";
 
 export const TodoApp: React.FC = () => {
+  const { setIsSettingsOpen } = useSettings();
   const [editingTodo, setEditingTodo] = useState<TodoType | null>(null);
   const [viewMode, setViewMode] = useState<"list" | "board">("list");
   const [columns, setColumns] = useState<{id: string, name: string}[]>([
@@ -209,10 +212,22 @@ export const TodoApp: React.FC = () => {
   }
 
   return (
-    <Card className="max-w-2xl mx-auto mt-8">
-      <CardHeader>
-        <CardTitle className="text-center">Todo App</CardTitle>
-      </CardHeader>
+    <>
+      <Card className="max-w-2xl mx-auto mt-8">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-center flex-1">Todo App</CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsSettingsOpen(true)}
+              className="h-8 w-8 p-0"
+              title="Settings"
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardHeader>
       <CardContent className="space-y-6">
         <TodoForm
           onSubmit={handleSubmit}
@@ -262,6 +277,8 @@ export const TodoApp: React.FC = () => {
           />
         )}
       </CardContent>
-    </Card>
+      </Card>
+      <SettingsModal />
+    </>
   );
 };

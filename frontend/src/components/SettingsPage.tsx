@@ -375,41 +375,57 @@ export const SettingsPage: React.FC = () => {
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Real Todo App Preview */}
-            <div className="text-sm text-gray-600 mb-2 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-              Live Preview - Real Todo App
+            <div className="text-sm text-gray-600 mb-2 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                Live Preview - Real Todo App
+              </div>
+              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                Preview Only
+              </span>
             </div>
-            <div className="overflow-hidden rounded-xl border-2 border-gray-200">
+            <div className="overflow-hidden rounded-xl border-2 border-gray-200 relative">
               <div 
-                className="transition-all duration-300 relative"
+                className="transition-all duration-300 relative pointer-events-none"
                 style={{
-                  backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'no-repeat',
                   transform: 'scale(0.75)',
                   transformOrigin: 'top left',
                   width: '133%',
                   height: '500px'
                 }}
-            >
-              {/* Background overlay with color and opacity */}
-              <div 
-                className="absolute inset-0 rounded-xl"
-                style={{
-                  background: backgroundColor !== '#ffffff' 
-                    ? `linear-gradient(135deg, ${hexToRgba(backgroundColor, backgroundOpacity)}, ${hexToRgba(backgroundColor, backgroundOpacity * 0.3)})` 
-                    : backgroundImage 
-                      ? 'rgba(255, 255, 255, 0.1)'
-                      : 'linear-gradient(135deg, rgba(248, 250, 252, 0.5), rgba(241, 245, 249, 0.2))'
-                }}
-              ></div>
-              
-                {/* Real TodoApp Component */}
+              >
+                {/* Background layer - same as main app */}
+                <div 
+                  className="absolute inset-0"
+                  style={{
+                    backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundAttachment: 'scroll'
+                  }}
+                ></div>
+                
+                {/* Background overlay with color and opacity */}
+                <div 
+                  className="absolute inset-0"
+                  style={{
+                    background: backgroundColor !== '#ffffff' 
+                      ? `linear-gradient(135deg, ${hexToRgba(backgroundColor, backgroundOpacity)}, ${hexToRgba(backgroundColor, backgroundOpacity * 0.3)})` 
+                      : backgroundImage 
+                        ? 'rgba(255, 255, 255, 0.1)'
+                        : 'linear-gradient(135deg, rgba(248, 250, 252, 0.5), rgba(241, 245, 249, 0.2))'
+                  }}
+                ></div>
+                
+                {/* Real TodoApp Component - Non-interactive */}
                 <div className="relative z-10 p-4">
                   <TodoApp />
                 </div>
               </div>
+              
+              {/* Overlay to prevent interactions */}
+              <div className="absolute inset-0 bg-transparent cursor-not-allowed" title="Preview only - not interactive"></div>
             </div>
 
             {/* Color Information Cards */}

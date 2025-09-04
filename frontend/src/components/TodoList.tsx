@@ -366,7 +366,6 @@ export const TodoList: React.FC<TodoListProps> = ({
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            className="space-y-3"
           >
             {todos.map((todo, index) => (
               <Draggable key={todo.id} draggableId={todo.id} index={index}>
@@ -374,28 +373,23 @@ export const TodoList: React.FC<TodoListProps> = ({
                   <div
                     ref={provided.innerRef}
                     {...provided.draggableProps}
-                    className={`transition-all duration-200 ${
+                    {...provided.dragHandleProps}
+                    className={`${
                       snapshot.isDragging 
-                        ? 'opacity-75 scale-105 shadow-lg' 
-                        : 'hover:bg-muted/30'
-                    }`}
+                        ? 'opacity-75' 
+                        : ''
+                    } ${index > 0 ? 'mt-3' : ''}`}
+                    style={{
+                      ...provided.draggableProps.style,
+                      cursor: 'move'
+                    }}
                   >
-                    <div className="flex items-center group">
-                      <div
-                        {...provided.dragHandleProps}
-                        className="mr-2 p-2 cursor-move hover:bg-primary/10 hover:text-primary rounded transition-colors duration-200 group-hover:bg-muted/50"
-                      >
-                        <GripVertical className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
-                      </div>
-                      <div className="flex-1">
-                        <Todo
-                          todo={todo}
-                          onToggle={onToggle}
-                          onDelete={onDelete}
-                          onEdit={onEdit}
-                        />
-                      </div>
-                    </div>
+                    <Todo
+                      todo={todo}
+                      onToggle={onToggle}
+                      onDelete={onDelete}
+                      onEdit={onEdit}
+                    />
                   </div>
                 )}
               </Draggable>

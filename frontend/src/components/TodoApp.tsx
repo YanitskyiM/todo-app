@@ -132,7 +132,33 @@ export const TodoApp: React.FC = () => {
   // Reorder todos mutation
   const reorderTodosMutation = useMutation({
     mutationFn: (todoIds: string[]) => todoApi.reorderTodos(todoIds),
-    onSuccess: () => {
+    onMutate: async (todoIds: string[]) => {
+      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({ queryKey: ["todos"] });
+
+      // Snapshot the previous value
+      const previousTodos = queryClient.getQueryData<TodoType[]>(["todos"]);
+
+      // Optimistically update to the new value
+      if (previousTodos) {
+        const reorderedTodos = todoIds.map(id => 
+          previousTodos.find(todo => todo.id === id)
+        ).filter(Boolean) as TodoType[];
+        
+        queryClient.setQueryData<TodoType[]>(["todos"], reorderedTodos);
+      }
+
+      // Return a context object with the snapshotted value
+      return { previousTodos };
+    },
+    onError: (err, todoIds, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousTodos) {
+        queryClient.setQueryData(["todos"], context.previousTodos);
+      }
+    },
+    onSettled: () => {
+      // Always refetch after error or success to ensure we have the latest data
       queryClient.invalidateQueries({ queryKey: ["todos"] });
     },
   });
